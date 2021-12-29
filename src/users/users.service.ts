@@ -2,9 +2,9 @@ import { Injectable } from '@nestjs/common';
 import { createCipheriv, createDecipheriv } from 'crypto';
 import { generate } from 'password-hash';
 import { isNull, isUndefined } from 'lodash';
-import { IV_KEY } from 'src/configurations/properties';
+import { IV_KEY } from '../configurations/properties';
 import { User } from '../models/users.model';
-import { jwtConstants } from 'src/auth/constants';
+import { jwtConstants } from '../auth/constants';
 
 @Injectable()
 export class UsersService {
