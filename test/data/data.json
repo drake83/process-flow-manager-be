@@ -1,0 +1,12 @@
+{
+  "users": [
+    {
+      "userId": "ROOT",
+      "username": "ROOT",
+      "password": "LIST",
+      "email": "io@email.com",
+      "role": "root",
+      "resetPassword": false
+    }
+  ]
+}

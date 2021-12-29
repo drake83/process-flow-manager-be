@@ -1,15 +1,18 @@
 import { Injectable } from '@nestjs/common';
+import { InjectModel } from '@nestjs/mongoose';
 import { createCipheriv, createDecipheriv } from 'crypto';
 import { generate } from 'password-hash';
 import { isNull, isUndefined } from 'lodash';
-import { IV_KEY } from '../configurations/properties';
-import { User } from '../models/users.model';
-import { jwtConstants } from '../auth/constants';
+import { IV_KEY, jwtConstants } from '../configurations/properties';
+import { User, UserDocument } from './models/schema/users.schema';
+import { Model } from 'mongoose';
 
 @Injectable()
 export class UsersService {
+  constructor(@InjectModel(User.name) private userModel: Model<UserDocument>) {}
+
   async findOne(username: string) {
-    return User.findOne().byUserName(username);
+    return this.userModel.findOne({ username: username }).exec();
   }
 
   static encrypt(text: string) {

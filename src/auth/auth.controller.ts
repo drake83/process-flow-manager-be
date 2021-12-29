@@ -10,7 +10,7 @@ import { AuthService } from './auth.service';
 import { JwtAuthGuard } from './jwt-auth.guard';
 import { LocalAuthGuard } from './local-auth.guard';
 import { V1_BASE_PATH, V1_SECURITY_PATH } from '../contants/index';
-import { Signup } from '../models/signup.model.';
+import { Signup } from './models/dto/signup.dto';
 
 @Controller()
 export class AuthController {
