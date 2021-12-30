@@ -14,6 +14,9 @@ export class UsersService {
   async findOne(username: string) {
     return this.userModel.findOne({ username: username }).exec();
   }
+  async save(user: User) {
+    return await new this.userModel({ ...user, created: new Date() }).save();
+  }
 
   static encrypt(text: string) {
     const secretInBytes = Buffer.from(jwtConstants.secret, 'base64');

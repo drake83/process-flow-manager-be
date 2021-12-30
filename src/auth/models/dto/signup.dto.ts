@@ -5,6 +5,7 @@ import {
   Matches,
   MinLength,
 } from 'class-validator';
+import { Role } from 'src/users/models/schema/users.schema';
 
 export class Signup {
   @IsNotEmpty()
@@ -23,19 +24,10 @@ export class Signup {
   @IsEmail()
   public email: string;
 
-  @IsNotEmpty()
-  @IsString()
-  @MinLength(6)
-  @Matches('password')
-  public confirmationPassword: string;
+  public role: Role;
 
-  constructor(
-    username: string,
-    password: string,
-    confirmationPassword: string,
-  ) {
+  constructor(username: string, password: string) {
     this.username = username;
     this.password = password;
-    this.confirmationPassword = confirmationPassword;
   }
 }

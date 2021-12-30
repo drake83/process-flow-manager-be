@@ -1,13 +1,11 @@
-export type Role = 'admin';
+import { Role } from '../schema/users.schema';
 
 export class BaseUserDTO {
   username: string;
 
-  userId: string;
-
   email: string;
 
-  role: Role;
+  roles: Role[];
 
   resetPassword: boolean;
 

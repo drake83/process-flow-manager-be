@@ -11,14 +11,11 @@ export class User {
   @Prop({ required: true })
   password: string;
 
-  @Prop({ index: true, required: true, unique: true })
-  userId: string;
-
   @Prop({ required: true })
   email: string;
 
   @Prop({ required: true })
-  role: Role;
+  roles: Role[];
 
   @Prop({ required: true })
   resetPassword: boolean;

@@ -1,29 +1,34 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { MongooseModule } from '@nestjs/mongoose';
 import { AuthController } from './auth.controller';
 import { AuthModule } from './auth.module';
+import {
+  closeInMongodConnection,
+  rootMongooseTestModule,
+} from '../../test/utils/globalSetup';
 
 describe('AuthController', () => {
   let authController: AuthController;
 
   beforeEach(async () => {
     const app: TestingModule = await Test.createTestingModule({
-      imports: [
-        MongooseModule.forRootAsync({
-          useFactory: () => ({
-            uri: 'mongodb://127.0.0.1:27018/processflow',
-          }),
-        }),
-        AuthModule,
-      ],
+      imports: [rootMongooseTestModule(), AuthModule],
     }).compile();
 
     authController = app.get<AuthController>(AuthController);
   });
 
+  afterAll(async () => {
+    await closeInMongodConnection();
+  });
+
   describe('Auth Controller Login', () => {
-    it('should return "Hello World!"', () => {
-      expect(authController.login({ user: {} })).toBe('Hello World!');
+    it('should return a valid token', () => {
+      expect(authController.login({ user: {} })).toBe('');
+    });
+  });
+  describe('Auth Controller Signup', () => {
+    it('should return a valid user', () => {
+      expect(authController.signup({})).toStrictEqual({});
     });
   });
 });

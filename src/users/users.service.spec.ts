@@ -1,26 +1,20 @@
-import { Test, TestingModule } from '@nestjs/testing';
 import { MongooseModule } from '@nestjs/mongoose';
-import mongoUnit from 'mongo-unit';
+import { Test, TestingModule } from '@nestjs/testing';
+import {
+  closeInMongodConnection,
+  rootMongooseTestModule,
+} from '../../test/utils/globalSetup';
+import { User, UserSchema } from './models/schema/users.schema';
 import { UsersService } from './users.service';
-import testData from '../../test/data/data.json';
 
 describe('UsersService', () => {
   let service: UsersService;
 
   beforeEach(async () => {
-    await mongoUnit.start({ dbName: 'processflow', port: 27018 }).then(() => {
-      console.log('fake mongo is started: ', mongoUnit.getUrl());
-    });
-
-    await mongoUnit.load(testData);
-
     const module: TestingModule = await Test.createTestingModule({
       imports: [
-        MongooseModule.forRootAsync({
-          useFactory: () => ({
-            uri: 'mongodb://127.0.0.1:27018/processflow',
-          }),
-        }),
+        rootMongooseTestModule(),
+        MongooseModule.forFeature([{ name: User.name, schema: UserSchema }]),
       ],
       providers: [UsersService],
     }).compile();
@@ -28,11 +22,30 @@ describe('UsersService', () => {
     service = module.get<UsersService>(UsersService);
   });
 
-  afterEach(async () => {
-    await mongoUnit.stop();
+  afterAll(async () => {
+    await closeInMongodConnection();
   });
 
-  it('should not find aanything', () => {
-    expect(service.findOne('NOT_EXISTING')).toBeDefined();
+  it('should not find anything', async () => {
+    expect(await service.findOne('NOT_EXISTING')).toStrictEqual(null);
+  });
+  it('save + find ', async () => {
+    await service.save({
+      username: 'ROOT',
+      email: 'email@email.com',
+      password: 'password',
+      role: 'admin',
+      created: new Date(),
+      resetPassword: false,
+      userId: 'root',
+    });
+    const fount = await service.findOne('ROOT');
+    const { userId, username, resetPassword, role, email } = fount;
+    expect(userId).toBe('root');
+    expect(username).toBe('ROOT');
+    expect(resetPassword).toBe(false);
+    expect(role).toBe('admin');
+    expect(email).toBe('email@email.com');
+    expect(email).toBe('email@email.com');
   });
 });

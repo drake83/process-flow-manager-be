@@ -1,4 +1,8 @@
 import { Test, TestingModule } from '@nestjs/testing';
+import {
+  closeInMongodConnection,
+  rootMongooseTestModule,
+} from '../../test/utils/globalSetup';
 import { AuthModule } from './auth.module';
 import { AuthService } from './auth.service';
 
@@ -7,10 +11,14 @@ describe('AuthService', () => {
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      imports: [AuthModule],
+      imports: [rootMongooseTestModule(), AuthModule],
     }).compile();
 
     service = module.get<AuthService>(AuthService);
+  });
+
+  afterAll(async () => {
+    await closeInMongodConnection();
   });
 
   it('should be defined', () => {

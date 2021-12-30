@@ -19,21 +19,23 @@ export class AuthService {
     if (!user) {
       return null;
     }
-    const { password, userId, email, username, role, resetPassword, created } =
-      user;
+    /**
+     * TODO: decrypt password
+     */
+    const { password, email, username, role, resetPassword, created } = user;
     if (password === userPassword) {
-      return { ...{ userId, email, username, role, resetPassword, created } };
+      return { ...{ email, username, role, resetPassword, created } };
     }
   }
 
   async login(user: BaseUserDTO) {
-    const { username, userId, email } = user;
+    const { username, role, email } = user;
     return {
-      access_token: this.jwtService.sign({ username, sub: userId, email }),
+      access_token: this.jwtService.sign({ username, role, email }),
     };
   }
   async signup(user: Signup) {
-    const { username, password, email, confirmationPassword } = user;
+    const { username, password, email, role, confirmationPassword } = user;
 
     // save to db
   }
