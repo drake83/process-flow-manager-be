@@ -34,17 +34,15 @@ describe('UsersService', () => {
       username: 'ROOT',
       email: 'email@email.com',
       password: 'password',
-      role: 'admin',
+      roles: ['admin'],
       created: new Date(),
       resetPassword: false,
-      userId: 'root',
     });
     const fount = await service.findOne('ROOT');
-    const { userId, username, resetPassword, role, email } = fount;
-    expect(userId).toBe('root');
+    const { username, resetPassword, roles, email } = fount;
     expect(username).toBe('ROOT');
     expect(resetPassword).toBe(false);
-    expect(role).toBe('admin');
+    expect(roles).toStrictEqual(['admin']);
     expect(email).toBe('email@email.com');
     expect(email).toBe('email@email.com');
   });

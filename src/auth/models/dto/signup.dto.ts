@@ -7,7 +7,7 @@ import {
 } from 'class-validator';
 import { Role } from 'src/users/models/schema/users.schema';
 
-export class Signup {
+export class SignupDTO {
   @IsNotEmpty()
   @IsString()
   @MinLength(4)
@@ -25,9 +25,4 @@ export class Signup {
   public email: string;
 
   public role: Role;
-
-  constructor(username: string, password: string) {
-    this.username = username;
-    this.password = password;
-  }
 }

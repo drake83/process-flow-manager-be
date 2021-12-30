@@ -9,7 +9,7 @@ import {
 import { AuthService } from './auth.service';
 import { LocalAuthGuard } from './local-auth.guard';
 import { V1_BASE_PATH } from '../contants/index';
-import { Signup } from './models/dto/signup.dto';
+import { SignupDTO } from './models/dto/signup.dto';
 
 @Controller()
 export class AuthController {
@@ -22,7 +22,7 @@ export class AuthController {
   }
 
   @Post(`${V1_BASE_PATH}/auth/signup`)
-  async signup(@Body() signupUser: Signup) {
+  async signup(@Body() signupUser: SignupDTO) {
     return this.authService.signup(signupUser);
   }
 }
