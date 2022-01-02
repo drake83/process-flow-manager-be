@@ -10,7 +10,7 @@ import { UsersService } from './users.service';
 describe('UsersService', () => {
   let service: UsersService;
 
-  beforeEach(async () => {
+  beforeAll(async () => {
     const module: TestingModule = await Test.createTestingModule({
       imports: [
         rootMongooseTestModule(),
@@ -29,21 +29,29 @@ describe('UsersService', () => {
   it('should not find anything', async () => {
     expect(await service.findOne('NOT_EXISTING')).toStrictEqual(null);
   });
-  it('save + find ', async () => {
-    await service.save({
-      username: 'ROOT',
-      email: 'email@email.com',
-      password: 'password',
-      roles: ['admin'],
-      created: new Date(),
-      resetPassword: false,
-    });
+
+  it('find ', async () => {
     const fount = await service.findOne('ROOT');
     const { username, resetPassword, roles, email } = fount;
     expect(username).toBe('ROOT');
     expect(resetPassword).toBe(false);
     expect(roles).toStrictEqual(['admin']);
     expect(email).toBe('email@email.com');
-    expect(email).toBe('email@email.com');
+  });
+  it('save  ', async () => {
+    await service.save({
+      username: 'ROOT2',
+      email: 'email2@email.com',
+      password: 'password',
+      roles: ['admin'],
+      created: new Date(),
+      resetPassword: false,
+    });
+    const fount = await service.findOne('ROOT2');
+    const { username, resetPassword, roles, email } = fount;
+    expect(username).toBe('ROOT2');
+    expect(resetPassword).toBe(false);
+    expect(roles).toStrictEqual(['admin']);
+    expect(email).toBe('email2@email.com');
   });
 });

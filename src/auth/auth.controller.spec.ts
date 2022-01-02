@@ -9,7 +9,7 @@ import {
 describe('AuthController', () => {
   let authController: AuthController;
 
-  beforeEach(async () => {
+  beforeAll(async () => {
     const app: TestingModule = await Test.createTestingModule({
       imports: [rootMongooseTestModule(), AuthModule],
     }).compile();
@@ -24,11 +24,6 @@ describe('AuthController', () => {
   describe('Auth Controller Login', () => {
     it('should return a valid token', () => {
       expect(authController.login({ user: {} })).toBe('');
-    });
-  });
-  describe('Auth Controller Signup', () => {
-    it('should return a valid user', () => {
-      expect(authController.signup({})).toStrictEqual({});
     });
   });
 });

@@ -1,6 +1,5 @@
 import { Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-import { SignupDTO } from './models/dto/signup.dto';
 import { BaseUserDTO } from '../users/models/dto/users.dto';
 import { UsersService } from '../users/users.service';
 
@@ -33,10 +32,5 @@ export class AuthService {
     return {
       access_token: this.jwtService.sign({ username, roles, email }),
     };
-  }
-  async signup(user: SignupDTO) {
-    const { username, password, email, role } = user;
-
-    // save to db
   }
 }
