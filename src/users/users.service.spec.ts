@@ -1,3 +1,4 @@
+import { NotFoundException } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { Test, TestingModule } from '@nestjs/testing';
 import {
@@ -9,9 +10,9 @@ import { UsersService } from './users.service';
 
 describe('UsersService', () => {
   let service: UsersService;
-
+  let module: TestingModule;
   beforeAll(async () => {
-    const module: TestingModule = await Test.createTestingModule({
+    module = await Test.createTestingModule({
       imports: [
         rootMongooseTestModule(),
         MongooseModule.forFeature([{ name: User.name, schema: UserSchema }]),
@@ -19,39 +20,48 @@ describe('UsersService', () => {
       providers: [UsersService],
     }).compile();
 
+    await module.init();
+
     service = module.get<UsersService>(UsersService);
   });
 
   afterAll(async () => {
     await closeInMongodConnection();
+    await module.close();
   });
 
-  it('should not find anything', async () => {
-    expect(await service.findOne('NOT_EXISTING')).toStrictEqual(null);
+  it('enrypt decrypt', () => {
+    const encrypted = UsersService.encrypt('TEST');
+    expect(UsersService.decrypt(encrypted)).toBe('TEST');
   });
 
-  it('find ', async () => {
+  it('find should not find anything', async () => {
+    try {
+      await service.findOne('NOT_EXISTING');
+    } catch (error) {
+      expect(error).toBeInstanceOf(NotFoundException);
+    }
+  });
+
+  it('find should work', async () => {
     const fount = await service.findOne('ROOT');
     const { username, resetPassword, roles, email } = fount;
     expect(username).toBe('ROOT');
-    expect(resetPassword).toBe(false);
+    expect(resetPassword).toBe(true);
     expect(roles).toStrictEqual(['admin']);
-    expect(email).toBe('email@email.com');
+    expect(email).toBe('alessandro.drago@gmail.com');
   });
   it('save  ', async () => {
     await service.save({
       username: 'ROOT2',
       email: 'email2@email.com',
-      password: 'password',
       roles: ['admin'],
-      created: new Date(),
-      resetPassword: false,
     });
     const fount = await service.findOne('ROOT2');
     const { username, resetPassword, roles, email } = fount;
     expect(username).toBe('ROOT2');
-    expect(resetPassword).toBe(false);
-    expect(roles).toStrictEqual(['admin']);
     expect(email).toBe('email2@email.com');
+    expect(resetPassword).toBe(true);
+    expect(roles).toStrictEqual(['admin']);
   });
 });

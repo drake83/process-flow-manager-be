@@ -7,7 +7,7 @@ import {
 } from 'class-validator';
 import { Role } from '../schema/users.schema';
 
-export class BaseUserDTO {
+export class UserDTO {
   @IsNotEmpty()
   @IsString()
   @MinLength(4)
@@ -17,18 +17,4 @@ export class BaseUserDTO {
   email: string;
 
   roles: Role[];
-
-  resetPassword: boolean;
-
-  created: Date;
-}
-
-export class UserDTO extends BaseUserDTO {
-  @IsNotEmpty()
-  @IsString()
-  @MinLength(6)
-  @Matches(/((?=.*\d)|(?=.*\W+))(?![.\n])(?=.*[A-Z])(?=.*[a-z]).*$/, {
-    message: 'password too weak',
-  })
-  password: string;
 }

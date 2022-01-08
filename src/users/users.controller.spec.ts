@@ -5,6 +5,8 @@ import {
   closeInMongodConnection,
   rootMongooseTestModule,
 } from '../../test/utils/globalSetup';
+import { ForbiddenException } from '@nestjs/common';
+import { fail } from 'assert';
 
 describe('UsersController', () => {
   let usersController: UsersController;
@@ -14,6 +16,7 @@ describe('UsersController', () => {
       imports: [rootMongooseTestModule(), UsersModule],
     }).compile();
 
+    app.init();
     usersController = app.get<UsersController>(UsersController);
   });
 
@@ -22,8 +25,17 @@ describe('UsersController', () => {
   });
 
   describe('Users Controller Login', () => {
-    it('should not create user without token', () => {
-      //expect(usersController.create({ email: '' })).toBe('Hello World!');
+    it('should not create user without token', async () => {
+      try {
+        await usersController.create({
+          email: 'dummy',
+          username: 'dummy',
+          roles: ['admin'],
+        });
+        fail();
+      } catch (error) {
+        expect(error).toBeInstanceOf(ForbiddenException);
+      }
     });
   });
 });

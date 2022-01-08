@@ -14,7 +14,6 @@ export const ENCRYPTION_KEY =
 export const SIGN_KEY =
   process.env.SIGN_KEY ||
   'ku4xi9qiQyF94KROFgVNR/Is7Wypcih6aPWys2mO9E+uIVhYIVY//Zd6a2mFk3fFwxeWoy4ZY2nwSgaEEjQGEw==';
-export const IV_KEY = 'NdRgUkXp2s5v8y/B?E(H+MbPeShVmYq3';
 
 const SERVER_SECRET =
   process.env.SERVER_SECRET || 'ijAmv6sRXH25tyWXSTLQUAgoAPPGEi9/uRwDvsF+vpU=';

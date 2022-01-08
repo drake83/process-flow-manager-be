@@ -1,55 +1,74 @@
-import { Injectable, OnModuleInit } from '@nestjs/common';
+import { Injectable, NotFoundException, OnModuleInit } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { createCipheriv, createDecipheriv } from 'crypto';
+import { createCipheriv, createDecipheriv, randomBytes } from 'crypto';
 import { generate } from 'password-hash';
-import { isNull, isUndefined } from 'lodash';
-import { IV_KEY, jwtConstants } from '../configurations/properties';
-import { User, UserDocument } from './models/schema/users.schema';
+import { Role, User, UserDocument } from './models/schema/users.schema';
 import { Model } from 'mongoose';
+import { UserDTO } from './models/dto/users.dto';
 
 @Injectable()
 export class UsersService implements OnModuleInit {
   constructor(@InjectModel(User.name) private userModel: Model<UserDocument>) {}
-  onModuleInit() {
-    new this.userModel({
+  async onModuleInit() {
+    await this.save({
       email: 'alessandro.drago@gmail.com',
-      password: UsersService.hashing('dummy'),
-      resetPassword: true,
       username: 'ROOT',
-      created: new Date(),
       roles: ['admin'],
-    }).save();
+    });
   }
 
-  async findOne(username: string) {
-    return this.userModel.findOne({ username: username }).exec();
+  async findOne(username: string): Promise<User> {
+    const found = await this.userModel
+      .findOne({ username: UsersService.encrypt(username) })
+      .exec();
+    if (!found) {
+      throw new NotFoundException();
+    }
+    const { email, username: usernamedDb, resetPassword, roles } = found;
+    return {
+      ...found,
+      resetPassword,
+      roles: roles.map((role) => UsersService.decrypt(role) as Role),
+      email: UsersService.decrypt(email),
+      username: UsersService.decrypt(usernamedDb),
+    };
   }
-  save(user: User) {
+  async findAll() {
+    return this.userModel.find().exec();
+  }
+  async save(user: UserDTO) {
+    const { email, username, roles } = user;
     return new this.userModel({
       ...user,
-      password: UsersService.hashing(user.password),
+      username: UsersService.encrypt(username),
+      email: UsersService.encrypt(email),
+      password: UsersService.hashing('DUMMYPASSWORD'),
       created: new Date(),
+      resetPassword: true,
+      roles: roles.map((role) => UsersService.encrypt(role)),
     }).save();
   }
 
-  static encrypt(text: string) {
-    const secretInBytes = Buffer.from(jwtConstants.secret, 'base64');
-    const cipher = createCipheriv('aes-256-gcm', secretInBytes, IV_KEY);
-    let crypted = cipher.update(text, 'utf8', 'hex');
-    crypted += cipher.final('hex');
-    return crypted;
-  }
+  private static initVector = randomBytes(16);
+  private static securityKey = randomBytes(32);
 
-  static decrypt(text: string) {
-    if (isNull(text) || isUndefined(text)) {
-      return text;
-    }
-    const secretInBytes = Buffer.from(jwtConstants.secret, 'base64');
-    const decipher = createDecipheriv('aes-256-gcm', secretInBytes, IV_KEY);
-    let dec = decipher.update(text, 'hex', 'utf8');
-    dec += decipher.final('utf8');
-    return dec;
-  }
+  static encrypt = (text: string): string => {
+    const cipher = createCipheriv(
+      'aes-256-cbc',
+      UsersService.securityKey,
+      UsersService.initVector,
+    );
+    return `${cipher.update(text, 'utf-8', 'hex')}${cipher.final('hex')}`;
+  };
+
+  static decrypt = (text: string): string => {
+    const decipher = createDecipheriv(
+      'aes-256-cbc',
+      UsersService.securityKey,
+      UsersService.initVector,
+    );
+    return `${decipher.update(text, 'hex', 'utf-8')}${decipher.final('utf8')}`;
+  };
 
   static hashing(val: string) {
     return generate(val);
