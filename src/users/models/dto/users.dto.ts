@@ -1,10 +1,4 @@
-import {
-  IsEmail,
-  IsNotEmpty,
-  IsString,
-  Matches,
-  MinLength,
-} from 'class-validator';
+import { IsEmail, IsNotEmpty, IsString, MinLength } from 'class-validator';
 import { Role } from '../schema/users.schema';
 
 export class UserDTO {
@@ -17,4 +11,8 @@ export class UserDTO {
   email: string;
 
   roles: Role[];
+
+  resetPassword?: boolean;
+
+  password?: string;
 }

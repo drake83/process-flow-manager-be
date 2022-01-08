@@ -1,6 +1,6 @@
 import { IsNotEmpty, IsString, Matches, MinLength } from 'class-validator';
 
-export class PasswordDTO {
+export class ResetPasswordDTO {
   @IsNotEmpty()
   @IsString()
   @MinLength(6)
@@ -9,4 +9,5 @@ export class PasswordDTO {
   })
   password: string;
   oldPassword: string;
+  username: string;
 }

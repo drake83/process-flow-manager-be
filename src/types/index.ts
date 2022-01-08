@@ -6,3 +6,9 @@ export interface ValidationPipeOptions extends ValidatorOptions {
   disableErrorMessages?: boolean;
   exceptionFactory?: (errors: ValidationError[]) => any;
 }
+
+export interface ErrorMessage {
+  statusCode: number;
+  detailedStatusCode: number;
+  message: string;
+}

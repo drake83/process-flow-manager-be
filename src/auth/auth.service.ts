@@ -1,5 +1,8 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
+import { ErrorMessage } from 'src/types';
+import { ResetPasswordDTO } from 'src/users/models/dto/password.dto';
+import { User } from 'src/users/models/schema/users.schema';
 import { UserDTO } from '../users/models/dto/users.dto';
 import { UsersService } from '../users/users.service';
 
@@ -10,16 +13,39 @@ export class AuthService {
     private jwtService: JwtService,
   ) {}
 
-  async validateUser(userName: string, userPassword: string): Promise<UserDTO> {
+  async validateUser(username: string, userPassword: string): Promise<UserDTO> {
+    let user: User;
     try {
-      const user = await this.userService.findOne(userName);
-      const { password, ...others } = user;
-      if (UsersService.hashing(password) === userPassword) {
-        return { ...others };
-      }
+      user = await this.userService.findOne(username);
     } catch (error) {
-      throw new UnauthorizedException();
+      const errorMessage: ErrorMessage = {
+        statusCode: 401,
+        detailedStatusCode: 40101,
+        message: 'Unauthorized',
+      };
+      throw new UnauthorizedException(errorMessage);
     }
+    const { password, ...others } = user;
+    if (UsersService.verify(userPassword, password)) {
+      return { ...others, password };
+    }
+    const wrongUsernamePasswordErrorMessage: ErrorMessage = {
+      statusCode: 401,
+      detailedStatusCode: 40103,
+      message: 'Unauthorized: wrong username or password',
+    };
+    throw new UnauthorizedException(wrongUsernamePasswordErrorMessage);
+  }
+
+  async changePassword(resetPassword: ResetPasswordDTO): Promise<UserDTO> {
+    const { username, oldPassword, password } = resetPassword;
+    const userFound = await this.validateUser(username, oldPassword);
+    await this.userService.update({
+      ...userFound,
+      password,
+      resetPassword: false,
+    });
+    return this.userService.findOne(username);
   }
 
   async login(user: UserDTO) {

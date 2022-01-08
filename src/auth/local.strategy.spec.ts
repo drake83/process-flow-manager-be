@@ -6,16 +6,19 @@ import {
 } from '../../test/utils/globalSetup';
 import { AuthModule } from './auth.module';
 import { AuthService } from './auth.service';
+import { LocalStrategy } from './local.strategy';
 
-describe('AuthService', () => {
-  let service: AuthService;
+describe('LocalStrategy', () => {
+  let service: LocalStrategy;
+  let authService: AuthService;
 
   beforeAll(async () => {
     const module: TestingModule = await Test.createTestingModule({
       imports: [rootMongooseTestModule(), AuthModule],
     }).compile();
     module.init();
-    service = module.get<AuthService>(AuthService);
+    service = module.get<LocalStrategy>(LocalStrategy);
+    authService = module.get<AuthService>(AuthService);
   });
 
   afterAll(async () => {
@@ -25,35 +28,28 @@ describe('AuthService', () => {
   it('should be defined', () => {
     expect(service).toBeDefined();
   });
+
   it('validateUser should trow exception', async () => {
     try {
-      expect(await service.validateUser('NOTEXISTING', 'wrong'));
-      fail();
-    } catch (error) {
-      expect(error).toBeInstanceOf(UnauthorizedException);
-    }
-  });
-  it('validateUser should trow exception because wrong password', async () => {
-    try {
-      expect(await service.validateUser('ROOT', 'wrong'));
+      expect(await service.validate('ROOT', 'DUMMYPASSWORD'));
       fail();
     } catch (error) {
       expect(error).toBeInstanceOf(UnauthorizedException);
     }
   });
 
-  it('changePassword should be ok', async () => {
-    const { username, roles, resetPassword } = await service.changePassword({
+  it('validateUser should be ok', async () => {
+    await authService.changePassword({
       username: 'ROOT',
       oldPassword: 'DUMMYPASSWORD',
       password: 'DUMMYPASSWORDCHANGED',
     });
+    const { username, roles, resetPassword } = await service.validate(
+      'ROOT',
+      'DUMMYPASSWORDCHANGED',
+    );
     expect(username).toBe('ROOT');
     expect(roles).toStrictEqual(['admin']);
     expect(resetPassword).toBeFalsy();
-    const valid = await service.validateUser('ROOT', 'DUMMYPASSWORDCHANGED');
-    expect(valid.username).toBe('ROOT');
-    expect(valid.roles).toStrictEqual(['admin']);
-    expect(valid.resetPassword).toBeFalsy();
   });
 });

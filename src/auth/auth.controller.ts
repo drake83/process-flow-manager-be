@@ -1,16 +1,22 @@
-import { Controller, Post, Request, UseGuards } from '@nestjs/common';
+import { Body, Controller, Post, Request, UseGuards } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { LocalAuthGuard } from './local-auth.guard';
-import { V1_BASE_PATH } from '../contants/index';
+import { V1_BASE_PATH, V1_SECURITY_PATH } from '../contants/index';
+import { JwtAuthGuard } from './jwt-auth.guard';
+import { ResetPasswordDTO } from '../users/models/dto/password.dto';
 @Controller()
 export class AuthController {
   constructor(private authService: AuthService) {}
 
   @UseGuards(LocalAuthGuard)
-  //@Post(`${V1_BASE_PATH}/auth/login`)
-  @Post(`auth/login`)
+  @Post(`${V1_BASE_PATH}/auth/login`)
   async login(@Request() req) {
-    console.log('SUCA');
     return this.authService.login(req.user);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Post(`${V1_SECURITY_PATH}/auth/reset-password`)
+  resetPassword(@Body() reset: ResetPasswordDTO) {
+    return this.authService.changePassword(reset);
   }
 }
