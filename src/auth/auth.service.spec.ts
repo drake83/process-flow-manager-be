@@ -1,3 +1,4 @@
+import { UnauthorizedException } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import {
   closeInMongodConnection,
@@ -13,7 +14,7 @@ describe('AuthService', () => {
     const module: TestingModule = await Test.createTestingModule({
       imports: [rootMongooseTestModule(), AuthModule],
     }).compile();
-
+    module.init();
     service = module.get<AuthService>(AuthService);
   });
 
@@ -23,5 +24,13 @@ describe('AuthService', () => {
 
   it('should be defined', () => {
     expect(service).toBeDefined();
+  });
+  it('validateUser should trow exception', async () => {
+    try {
+      expect(await service.validateUser('NOTEXISTING', 'wrong'));
+      fail();
+    } catch (error) {
+      expect(error).toBeInstanceOf(UnauthorizedException);
+    }
   });
 });

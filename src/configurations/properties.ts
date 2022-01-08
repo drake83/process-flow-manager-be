@@ -4,9 +4,11 @@ export interface ProcessEnv {
 
 export const SERVER_PORT = process.env.SERVER_PORT || 5000;
 
-export const MONGODB_REPO_CONNECTION =
-  process.env.MONGODB_REPO_CONNECTION ||
-  'mongodb://localhost:27017/process-flow-manager';
+const mongoUri =
+  process.env.MONGODB_REPO_CONNECTION || 'mongodb://localhost:27017';
+const mongoDbName = process.env.MONGODB_DB_NAME || 'process-flow-manager';
+
+export const MONGODB_REPO_CONNECTION = `${mongoUri}/${mongoDbName}`;
 
 // MONGOOSE ENC/DEC KEYS
 export const ENCRYPTION_KEY =

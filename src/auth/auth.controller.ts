@@ -7,8 +7,10 @@ export class AuthController {
   constructor(private authService: AuthService) {}
 
   @UseGuards(LocalAuthGuard)
-  @Post(`${V1_BASE_PATH}/auth/login`)
+  //@Post(`${V1_BASE_PATH}/auth/login`)
+  @Post(`auth/login`)
   async login(@Request() req) {
+    console.log('SUCA');
     return this.authService.login(req.user);
   }
 }

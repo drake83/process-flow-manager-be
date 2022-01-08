@@ -1,29 +1,36 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { AuthController } from './auth.controller';
+import * as request from 'supertest';
 import { AuthModule } from './auth.module';
 import {
   closeInMongodConnection,
   rootMongooseTestModule,
 } from '../../test/utils/globalSetup';
+import { UsersModule } from '../users/users.module';
+import { INestApplication } from '@nestjs/common';
+import { V1_BASE_PATH } from '../contants';
 
 describe('AuthController', () => {
-  let authController: AuthController;
+  let app: INestApplication;
 
   beforeAll(async () => {
-    const app: TestingModule = await Test.createTestingModule({
-      imports: [rootMongooseTestModule(), AuthModule],
+    const module: TestingModule = await Test.createTestingModule({
+      imports: [rootMongooseTestModule(), AuthModule, UsersModule],
     }).compile();
-
-    authController = app.get<AuthController>(AuthController);
+    module.init();
+    app = module.createNestApplication();
   });
 
   afterAll(async () => {
     await closeInMongodConnection();
+    await app.close();
   });
 
   describe('Auth Controller Login', () => {
-    it('should return a valid token', () => {
-      expect(authController.login({ user: {} })).toBe('');
+    it('should NOT return a valid token', async () => {
+      return request(app.getHttpServer())
+        .post(`${V1_BASE_PATH}/auth/login`)
+        .send({ username: 'NOT_EXISTING', password: 'NOT' })
+        .expect(401);
     });
   });
 });
