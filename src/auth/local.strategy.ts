@@ -1,8 +1,8 @@
 import { Strategy } from 'passport-local';
 import { PassportStrategy } from '@nestjs/passport';
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { AuthService } from './auth.service';
-import { ErrorMessage } from 'src/types';
+import { ResetPasswordException } from '../errors/ResetPasswordException';
 
 @Injectable()
 export class LocalStrategy extends PassportStrategy(Strategy) {
@@ -13,12 +13,7 @@ export class LocalStrategy extends PassportStrategy(Strategy) {
   async validate(username: string, password: string): Promise<any> {
     const user = await this.authService.validateUser(username, password);
     if (!!user.resetPassword) {
-      const errorMessage: ErrorMessage = {
-        statusCode: 401,
-        detailedStatusCode: 40102,
-        message: 'Unauthorized: user must change password',
-      };
-      throw new UnauthorizedException(errorMessage);
+      throw new ResetPasswordException();
     }
 
     return user;

@@ -71,12 +71,16 @@ describe('AppController (e2e)', () => {
           oldPassword: 'DUMMYPASSWORD',
           password: 'DUMMYPASSWORDCHANGED',
         })
-        .expect(200);
+        .expect(201);
 
       return request(app.getHttpServer())
         .post(`${V1_BASE_PATH}/auth/login`)
-        .send({ username: 'ROOT', password: 'DUMMYPASSWORD' })
-        .expect(201);
+        .send({ username: 'ROOT', password: 'DUMMYPASSWORDCHANGED' })
+        .expect(201)
+        .then((resp) => {
+          const { access_token } = resp.body;
+          assert(access_token !== undefined);
+        });
     });
   });
 });

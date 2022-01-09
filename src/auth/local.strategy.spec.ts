@@ -1,5 +1,8 @@
 import { UnauthorizedException } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
+import { GenericUnauthorizedException } from 'src/errors/GenericUnauthorizedException';
+import { ResetPasswordException } from 'src/errors/ResetPasswordException';
+import { WrongUserNamePasswordException } from 'src/errors/WrongUserNamePasswordException';
 import {
   closeInMongodConnection,
   rootMongooseTestModule,
@@ -30,12 +33,29 @@ describe('LocalStrategy', () => {
     expect(service).toBeDefined();
   });
 
-  it('validateUser should trow exception', async () => {
+  it('validateUser should trow ResetPasswordException', async () => {
+    try {
+      expect(await service.validate('NOTEXISTING', 'DUMMYPASSWORD'));
+      fail();
+    } catch (error) {
+      expect(error).toBeInstanceOf(GenericUnauthorizedException);
+    }
+  });
+  it('validateUser should trow ResetPasswordException', async () => {
     try {
       expect(await service.validate('ROOT', 'DUMMYPASSWORD'));
       fail();
     } catch (error) {
-      expect(error).toBeInstanceOf(UnauthorizedException);
+      expect(error).toBeInstanceOf(ResetPasswordException);
+    }
+  });
+
+  it('validateUser should trow WrongUserNamePasswordException', async () => {
+    try {
+      expect(await service.validate('ROOT', 'WRONG'));
+      fail();
+    } catch (error) {
+      expect(error).toBeInstanceOf(WrongUserNamePasswordException);
     }
   });
 

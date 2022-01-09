@@ -1,7 +1,8 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-import { ErrorMessage } from 'src/types';
-import { ResetPasswordDTO } from 'src/users/models/dto/password.dto';
+import { GenericUnauthorizedException } from '../errors/GenericUnauthorizedException';
+import { WrongUserNamePasswordException } from '../errors/WrongUserNamePasswordException';
+import { ResetPasswordDTO } from '../users/models/dto/password.dto';
 import { User } from 'src/users/models/schema/users.schema';
 import { UserDTO } from '../users/models/dto/users.dto';
 import { UsersService } from '../users/users.service';
@@ -18,23 +19,13 @@ export class AuthService {
     try {
       user = await this.userService.findOne(username);
     } catch (error) {
-      const errorMessage: ErrorMessage = {
-        statusCode: 401,
-        detailedStatusCode: 40101,
-        message: 'Unauthorized',
-      };
-      throw new UnauthorizedException(errorMessage);
+      throw new GenericUnauthorizedException();
     }
     const { password, ...others } = user;
     if (UsersService.verify(userPassword, password)) {
       return { ...others, password };
     }
-    const wrongUsernamePasswordErrorMessage: ErrorMessage = {
-      statusCode: 401,
-      detailedStatusCode: 40103,
-      message: 'Unauthorized: wrong username or password',
-    };
-    throw new UnauthorizedException(wrongUsernamePasswordErrorMessage);
+    throw new WrongUserNamePasswordException();
   }
 
   async changePassword(resetPassword: ResetPasswordDTO): Promise<UserDTO> {
