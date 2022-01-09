@@ -11,9 +11,9 @@ import { LocalStrategy } from './local.strategy';
 describe('LocalStrategy', () => {
   let service: LocalStrategy;
   let authService: AuthService;
-
+  let module: TestingModule;
   beforeAll(async () => {
-    const module: TestingModule = await Test.createTestingModule({
+    module = await Test.createTestingModule({
       imports: [rootMongooseTestModule(), AuthModule],
     }).compile();
     module.init();
@@ -22,6 +22,7 @@ describe('LocalStrategy', () => {
   });
 
   afterAll(async () => {
+    await module.close();
     await closeInMongodConnection();
   });
 

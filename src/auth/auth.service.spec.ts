@@ -9,9 +9,9 @@ import { AuthService } from './auth.service';
 
 describe('AuthService', () => {
   let service: AuthService;
-
+  let module: TestingModule;
   beforeAll(async () => {
-    const module: TestingModule = await Test.createTestingModule({
+    module = await Test.createTestingModule({
       imports: [rootMongooseTestModule(), AuthModule],
     }).compile();
     module.init();
@@ -19,6 +19,7 @@ describe('AuthService', () => {
   });
 
   afterAll(async () => {
+    await module.close();
     await closeInMongodConnection();
   });
 
