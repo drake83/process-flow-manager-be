@@ -1,8 +1,7 @@
-import { UnauthorizedException } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
-import { GenericUnauthorizedException } from 'src/errors/GenericUnauthorizedException';
-import { ResetPasswordException } from 'src/errors/ResetPasswordException';
-import { WrongUserNamePasswordException } from 'src/errors/WrongUserNamePasswordException';
+import { GenericUnauthorizedException } from '../errors/GenericUnauthorizedException';
+import { ResetPasswordException } from '../errors/ResetPasswordException';
+import { WrongUserNamePasswordException } from '../errors/WrongUserNamePasswordException';
 import {
   closeInMongodConnection,
   rootMongooseTestModule,
