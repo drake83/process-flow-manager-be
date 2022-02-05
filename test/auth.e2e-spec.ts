@@ -39,6 +39,18 @@ describe('AppController (e2e)', () => {
           assert(message === 'Unauthorized');
         });
     });
+    it('should NOT return a valid token', async () => {
+      return request(app.getHttpServer())
+        .post(`${V1_BASE_PATH}/auth/login`)
+        .send({ username: '', password: 'NOT' })
+        .expect(401)
+        .then((resp) => {
+          assert(resp.body !== undefined);
+          const { statusCode, message } = resp.body;
+          assert(statusCode === 401);
+          assert(message === 'Unauthorized');
+        });
+    });
     it('should return 401 for changing password', async () => {
       return request(app.getHttpServer())
         .post(`${V1_BASE_PATH}/auth/login`)
