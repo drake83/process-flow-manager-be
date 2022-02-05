@@ -62,11 +62,11 @@ describe('LocalStrategy', () => {
     await authService.changePassword({
       username: 'ROOT',
       oldPassword: 'DUMMYPASSWORD',
-      password: 'DUMMYPASSWORDCHANGED',
+      password: '1Aaaaaaapppppakaaa.',
     });
     const { username, roles, resetPassword } = await service.validate(
       'ROOT',
-      'DUMMYPASSWORDCHANGED',
+      '1Aaaaaaapppppakaaa.',
     );
     expect(username).toBe('ROOT');
     expect(roles).toStrictEqual(['admin']);

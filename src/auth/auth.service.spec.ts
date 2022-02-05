@@ -47,12 +47,12 @@ describe('AuthService', () => {
     const { username, roles, resetPassword } = await service.changePassword({
       username: 'ROOT',
       oldPassword: 'DUMMYPASSWORD',
-      password: 'DUMMYPASSWORDCHANGED',
+      password: '1Aaaaaaapppppakaaa.',
     });
     expect(username).toBe('ROOT');
     expect(roles).toStrictEqual(['admin']);
     expect(resetPassword).toBeFalsy();
-    const valid = await service.validateUser('ROOT', 'DUMMYPASSWORDCHANGED');
+    const valid = await service.validateUser('ROOT', '1Aaaaaaapppppakaaa.');
     expect(valid.username).toBe('ROOT');
     expect(valid.roles).toStrictEqual(['admin']);
     expect(valid.resetPassword).toBeFalsy();

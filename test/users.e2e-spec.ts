@@ -42,17 +42,17 @@ describe('Users (e2e)', () => {
 
     it('should get profile data with a valid token', async () => {
       await request(app.getHttpServer())
-        .post(`${V1_SECURITY_PATH}/auth/reset-password`)
+        .post(`${V1_BASE_PATH}/auth/reset-password`)
         .send({
           username: 'ROOT',
           oldPassword: 'DUMMYPASSWORD',
-          password: 'DUMMYPASSWORDCHANGED',
+          password: '1Aaaaaaapppppakaaa.',
         })
         .expect(201);
 
       const loginReq: any = await request(app.getHttpServer())
         .post(`${V1_BASE_PATH}/auth/login`)
-        .send({ username: 'ROOT', password: 'DUMMYPASSWORDCHANGED' })
+        .send({ username: 'ROOT', password: '1Aaaaaaapppppakaaa.' })
         .expect(201);
       const token = loginReq?.body?.access_token;
 

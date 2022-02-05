@@ -5,6 +5,7 @@ import {
   Post,
   Request,
   UseGuards,
+  ValidationPipe,
 } from '@nestjs/common';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { V1_SECURITY_PATH } from '../contants/index';
@@ -23,7 +24,7 @@ export class UsersController {
 
   @UseGuards(JwtAuthGuard)
   @Post(`${V1_SECURITY_PATH}/create`)
-  create(@Body() user: UserDTO) {
+  create(@Body(new ValidationPipe()) user: UserDTO) {
     return this.usersService.save(user);
   }
 }

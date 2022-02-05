@@ -2,7 +2,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { INestApplication } from '@nestjs/common';
 import * as request from 'supertest';
 import { AppModule } from '../src/app.module';
-import { V1_BASE_PATH, V1_SECURITY_PATH } from '../src/contants';
+import { V1_BASE_PATH } from '../src/contants';
 import {
   closeInMongodConnection,
   rootMongooseTestModule,
@@ -63,19 +63,29 @@ describe('AppController (e2e)', () => {
           assert(message === 'Unauthorized: wrong username or password');
         });
     });
-    it('should return a valid token', async () => {
+    it('should get 400', async () => {
       await request(app.getHttpServer())
-        .post(`${V1_SECURITY_PATH}/auth/reset-password`)
+        .post(`${V1_BASE_PATH}/auth/reset-password`)
         .send({
           username: 'ROOT',
           oldPassword: 'DUMMYPASSWORD',
-          password: 'DUMMYPASSWORDCHANGED',
+          password: 'annnn.l',
+        })
+        .expect(400);
+    });
+    it('should return a valid token', async () => {
+      await request(app.getHttpServer())
+        .post(`${V1_BASE_PATH}/auth/reset-password`)
+        .send({
+          username: 'ROOT',
+          oldPassword: 'DUMMYPASSWORD',
+          password: '1Aaaaaaapppppakaaa.',
         })
         .expect(201);
 
       return request(app.getHttpServer())
         .post(`${V1_BASE_PATH}/auth/login`)
-        .send({ username: 'ROOT', password: 'DUMMYPASSWORDCHANGED' })
+        .send({ username: 'ROOT', password: '1Aaaaaaapppppakaaa.' })
         .expect(201)
         .then((resp) => {
           const { access_token } = resp.body;
