@@ -1,11 +1,16 @@
-import { Injectable, NotFoundException, OnModuleInit } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  OnModuleInit,
+  UnprocessableEntityException,
+} from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { createCipheriv, createDecipheriv, randomBytes } from 'crypto';
 import { generate, verify } from 'password-hash';
-import { Role, User, UserDocument } from './models/schema/users.schema';
+import { User, UserDocument } from './models/schema/users.schema';
 import { Model } from 'mongoose';
-import { UserDTO } from './models/dto/users.dto';
-import { ResetPasswordDTO } from './models/dto/password.dto';
+import { CreateUserDTO, UserDTO } from './models/dto/users.dto';
+import { Role } from 'src/types';
 
 @Injectable()
 export class UsersService implements OnModuleInit {
@@ -18,10 +23,14 @@ export class UsersService implements OnModuleInit {
     });
   }
 
-  async findOne(username: string): Promise<User> {
-    const found = await this.userModel
+  async find(username: string) {
+    return this.userModel
       .findOne({ username: UsersService.encrypt(username) })
       .exec();
+  }
+
+  async findOne(username: string): Promise<User> {
+    const found = await this.find(username);
     if (!found) {
       throw new NotFoundException();
     }
@@ -47,8 +56,12 @@ export class UsersService implements OnModuleInit {
     return this.userModel.find().exec();
   }
 
-  async save(user: UserDTO) {
+  async save(user: CreateUserDTO) {
     const { email, username, roles } = user;
+    const found = await this.find(username);
+    if (found) {
+      throw new UnprocessableEntityException('User already present');
+    }
     return new this.userModel({
       ...user,
       username: UsersService.encrypt(username),

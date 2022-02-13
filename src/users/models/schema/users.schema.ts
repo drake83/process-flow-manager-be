@@ -1,7 +1,6 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document } from 'mongoose';
-
-export type Role = 'admin';
+import { Role } from '../../../types';
 
 @Schema()
 export class User {

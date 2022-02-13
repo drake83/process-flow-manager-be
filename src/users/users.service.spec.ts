@@ -1,4 +1,7 @@
-import { NotFoundException } from '@nestjs/common';
+import {
+  NotFoundException,
+  UnprocessableEntityException,
+} from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { Test, TestingModule } from '@nestjs/testing';
 import {
@@ -63,5 +66,16 @@ describe('UsersService', () => {
     expect(email).toBe('email2@email.com');
     expect(resetPassword).toBe(true);
     expect(roles).toStrictEqual(['admin']);
+  });
+  it('save should fail ', async () => {
+    try {
+      await service.save({
+        username: 'ROOT',
+        email: 'email2@email.com',
+        roles: ['admin'],
+      });
+    } catch (error) {
+      expect(error).toBeInstanceOf(UnprocessableEntityException);
+    }
   });
 });

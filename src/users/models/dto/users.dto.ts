@@ -8,7 +8,7 @@ import {
   MinLength,
 } from 'class-validator';
 import { passwordRegex } from '../../../contants';
-import { Role } from '../schema/users.schema';
+import { Role } from '../../../types';
 
 export class UserDTO {
   @IsNotEmpty()
@@ -35,4 +35,19 @@ export class UserDTO {
     message: 'password too weak',
   })
   password?: string;
+}
+
+export class CreateUserDTO {
+  @IsNotEmpty()
+  @IsString()
+  @MinLength(4)
+  username: string;
+
+  @IsEmail()
+  @IsNotEmpty()
+  email: string;
+
+  @IsArray()
+  @IsNotEmpty()
+  roles: Role[];
 }

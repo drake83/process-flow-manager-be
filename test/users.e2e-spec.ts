@@ -2,24 +2,29 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { INestApplication } from '@nestjs/common';
 import * as request from 'supertest';
 import { AppModule } from '../src/app.module';
-import { V1_BASE_PATH, V1_SECURITY_PATH } from '../src/contants';
+import { V1_SECURITY_PATH } from '../src/contants';
 import {
   closeInMongodConnection,
   rootMongooseTestModule,
 } from './utils/globalSetup';
 import * as assert from 'assert';
-import { User } from 'src/users/models/schema/users.schema';
+import { User } from '../src/users/models/schema/users.schema';
+import { getAdmimToken } from '../test/utils/utils';
+import { UsersService } from '../src/users/users.service';
 
 describe('Users (e2e)', () => {
   let app: INestApplication;
+  let token: string;
 
   beforeAll(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
       imports: [rootMongooseTestModule(), AppModule],
+      //providers: [UsersService],
     }).compile();
 
     app = moduleFixture.createNestApplication();
     await app.init();
+    token = await getAdmimToken(app);
   });
 
   afterAll(async () => {
@@ -41,21 +46,6 @@ describe('Users (e2e)', () => {
     });
 
     it('should get profile data with a valid token', async () => {
-      await request(app.getHttpServer())
-        .post(`${V1_BASE_PATH}/auth/reset-password`)
-        .send({
-          username: 'ROOT',
-          oldPassword: 'DUMMYPASSWORD',
-          password: '1Aaaaaaapppppakaaa.',
-        })
-        .expect(201);
-
-      const loginReq: any = await request(app.getHttpServer())
-        .post(`${V1_BASE_PATH}/auth/login`)
-        .send({ username: 'ROOT', password: '1Aaaaaaapppppakaaa.' })
-        .expect(201);
-      const token = loginReq?.body?.access_token;
-
       return request(app.getHttpServer())
         .get(`${V1_SECURITY_PATH}/profile`)
         .set('Authorization', 'Bearer ' + token)
@@ -68,10 +58,49 @@ describe('Users (e2e)', () => {
             email,
             resetPassword,
           } = resp.body as User;
-          assert(roles.includes('admin'));
           assert(username === 'ROOT');
           assert(email === 'alessandro.drago@gmail.com');
+          assert(roles.includes('admin'));
           assert(resetPassword === false);
+        });
+    });
+  });
+
+  describe('/v1/api/secured/create', () => {
+    it('should not create users', async () => {
+      await request(app.getHttpServer())
+        .post(`${V1_SECURITY_PATH}/create`)
+        .send({
+          username: 'ROOT2',
+          email: 'alessandro.io@gmail.com',
+          roles: ['admin'],
+        })
+        .expect(401);
+    });
+    it('should create users', async () => {
+      await request(app.getHttpServer())
+        .post(`${V1_SECURITY_PATH}/create`)
+        .set('Authorization', 'Bearer ' + token)
+        .send({
+          username: 'ROOT2',
+          email: 'alessandro.io@gmail.com',
+          roles: ['admin'],
+        })
+        .expect(201)
+        .then((resp) => {
+          assert(resp.body !== undefined);
+          const {
+            username,
+            roles = [],
+            email,
+            resetPassword,
+          } = resp.body as User;
+          assert(UsersService.decrypt(username) === 'ROOT2');
+          assert(UsersService.decrypt(email) === 'alessandro.io@gmail.com');
+          assert(resetPassword === true);
+          assert(
+            roles.map((role) => UsersService.decrypt(role)).includes('admin'),
+          );
         });
     });
   });

@@ -6,3 +6,5 @@ export interface ValidationPipeOptions extends ValidatorOptions {
   disableErrorMessages?: boolean;
   exceptionFactory?: (errors: ValidationError[]) => any;
 }
+
+export type Role = 'admin';
