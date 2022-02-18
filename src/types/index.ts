@@ -7,4 +7,9 @@ export interface ValidationPipeOptions extends ValidatorOptions {
   exceptionFactory?: (errors: ValidationError[]) => any;
 }
 
-export type Role = 'admin';
+// admin = all su ogni cosa
+// manager = crud sulle "cose" assegnategli + user
+// creator = creare/modifica gli oggetti
+export type Role = 'admin' | 'manager' | 'creator' | 'reader';
+
+export type Entity = 'connections' | 'profiles' | 'data-models' | 'projects';

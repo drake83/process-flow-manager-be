@@ -9,7 +9,7 @@ import {
 } from './utils/globalSetup';
 import * as assert from 'assert';
 import { User } from '../src/users/models/schema/users.schema';
-import { getAdmimToken } from '../test/utils/utils';
+import { getAdmimToken as getAdminToken } from '../test/utils/utils';
 import { UsersService } from '../src/users/users.service';
 
 describe('Users (e2e)', () => {
@@ -24,7 +24,7 @@ describe('Users (e2e)', () => {
 
     app = moduleFixture.createNestApplication();
     await app.init();
-    token = await getAdmimToken(app);
+    token = await getAdminToken(app);
   });
 
   afterAll(async () => {
