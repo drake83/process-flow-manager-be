@@ -1,10 +1,8 @@
 import {
   Body,
-  ClassSerializerInterceptor,
   Controller,
   Post,
   UseGuards,
-  UseInterceptors,
   ValidationPipe,
 } from '@nestjs/common';
 import { JwtAuthGuard } from '../../auth/jwt-auth.guard';
@@ -13,7 +11,6 @@ import { CreateUserDTO } from './models/dto/createuser.dto';
 import { UsersService } from './users.service';
 
 @Controller(`${V1_SECURITY_PATH}/users`)
-@UseInterceptors(ClassSerializerInterceptor)
 export class UsersController {
   constructor(private usersService: UsersService) {}
 
