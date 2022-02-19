@@ -6,8 +6,8 @@ import {
   InferSubjects,
 } from '@casl/ability';
 import { Injectable } from '@nestjs/common';
-import { Action } from 'src/enums';
-import { User } from 'src/users/models/schema/users.schema';
+import { Action } from '../enums';
+import { User } from '../entities/users/models/schema/users.schema';
 
 type Subjects = InferSubjects<typeof User> | 'all';
 
@@ -26,8 +26,8 @@ export class CaslAbilityFactory {
       can(Action.Read, 'all'); // read-only access to everything
     }
 
-    can(Action.Update, Article, { authorId: user.id });
-    cannot(Action.Delete, Article, { isPublished: true });
+    // can(Action.Update, Article, { authorId: user.id });
+    // cannot(Action.Delete, Article, { isPublished: true });
 
     return build({
       // Read https://casl.js.org/v5/en/guide/subject-type-detection#use-classes-as-subject-types for details

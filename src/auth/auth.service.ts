@@ -2,10 +2,9 @@ import { Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { GenericUnauthorizedException } from '../errors/GenericUnauthorizedException';
 import { WrongUserNamePasswordException } from '../errors/WrongUserNamePasswordException';
-import { ResetPasswordDTO } from '../users/models/dto/password.dto';
-import { User } from 'src/users/models/schema/users.schema';
-import { UserDTO } from '../users/models/dto/users.dto';
-import { UsersService } from '../users/users.service';
+import { UsersService } from '../entities/users/users.service';
+import { UserDTO } from '../entities/users/models/dto/users.dto';
+import { ResetPasswordDTO } from './models/dto/reset-password.dto';
 
 @Injectable()
 export class AuthService {
@@ -15,7 +14,7 @@ export class AuthService {
   ) {}
 
   async validateUser(username: string, userPassword: string): Promise<UserDTO> {
-    let user: User;
+    let user: UserDTO;
     try {
       user = await this.userService.findOne(username);
     } catch (error) {

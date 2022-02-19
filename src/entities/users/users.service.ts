@@ -9,7 +9,8 @@ import { createCipheriv, createDecipheriv, randomBytes } from 'crypto';
 import { generate, verify } from 'password-hash';
 import { User, UserDocument } from './models/schema/users.schema';
 import { Model } from 'mongoose';
-import { CreateUserDTO, UserDTO } from './models/dto/users.dto';
+import { UserDTO } from './models/dto/users.dto';
+import { CreateUserDTO } from './models/dto/createuser.dto';
 import { Role } from 'src/types';
 
 @Injectable()
@@ -29,7 +30,7 @@ export class UsersService implements OnModuleInit {
       .exec();
   }
 
-  async findOne(username: string): Promise<User> {
+  async findOne(username: string): Promise<UserDTO> {
     const found = await this.find(username);
     if (!found) {
       throw new NotFoundException();
@@ -49,7 +50,7 @@ export class UsersService implements OnModuleInit {
       roles: roles.map((role) => UsersService.decrypt(role) as Role),
       email: UsersService.decrypt(email),
       username: UsersService.decrypt(usernamedDb),
-    };
+    } as UserDTO;
   }
 
   async findAll() {
@@ -62,7 +63,7 @@ export class UsersService implements OnModuleInit {
     if (found) {
       throw new UnprocessableEntityException('User already present');
     }
-    return new this.userModel({
+    const created = await new this.userModel({
       ...user,
       username: UsersService.encrypt(username),
       email: UsersService.encrypt(email),
@@ -71,6 +72,15 @@ export class UsersService implements OnModuleInit {
       resetPassword: true,
       roles: roles.map((role) => UsersService.encrypt(role)),
     }).save();
+    const createdDto: UserDTO = {
+      username: created.username,
+      email: created.email,
+      password: created.password,
+      created: created.created,
+      resetPassword: created.resetPassword,
+      roles: created.roles,
+    };
+    return createdDto;
   }
 
   async update(user: UserDTO) {
@@ -83,11 +93,20 @@ export class UsersService implements OnModuleInit {
       resetPassword,
       roles: roles.map((role) => UsersService.encrypt(role)),
     };
-    return this.userModel
+    const updated = await this.userModel
       .findOneAndUpdate(filter, update, {
         new: true,
       })
       .exec();
+    const updatedDto: UserDTO = {
+      username: updated.username,
+      email: updated.email,
+      password: updated.password,
+      created: updated.created,
+      resetPassword: updated.resetPassword,
+      roles: updated.roles,
+    };
+    return updatedDto;
   }
 
   private static initVector = randomBytes(16);

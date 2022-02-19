@@ -8,9 +8,8 @@ import {
   rootMongooseTestModule,
 } from './utils/globalSetup';
 import * as assert from 'assert';
-import { User } from '../src/users/models/schema/users.schema';
-import { getAdmimToken as getAdminToken } from '../test/utils/utils';
-import { UsersService } from '../src/users/users.service';
+import { getAdmimToken as getAdminToken } from './utils/utils';
+import { UserDTO } from '../src/entities/users/models/dto/users.dto';
 
 describe('Users (e2e)', () => {
   let app: INestApplication;
@@ -32,10 +31,10 @@ describe('Users (e2e)', () => {
     await closeInMongodConnection();
   });
 
-  describe('/v1/api/secured/profile', () => {
+  describe('/v1/api/secured/profile/detail', () => {
     it('should get 401 because not a valid token', async () => {
       return request(app.getHttpServer())
-        .get(`${V1_SECURITY_PATH}/profile`)
+        .get(`${V1_SECURITY_PATH}/profile/detail`)
         .expect(401)
         .then((resp) => {
           assert(resp.body !== undefined);
@@ -47,7 +46,7 @@ describe('Users (e2e)', () => {
 
     it('should get profile data with a valid token', async () => {
       return request(app.getHttpServer())
-        .get(`${V1_SECURITY_PATH}/profile`)
+        .get(`${V1_SECURITY_PATH}/profile/detail`)
         .set('Authorization', 'Bearer ' + token)
         .expect(200)
         .then((resp) => {
@@ -57,50 +56,13 @@ describe('Users (e2e)', () => {
             roles = [],
             email,
             resetPassword,
-          } = resp.body as User;
+            password,
+          } = resp.body as UserDTO;
           assert(username === 'ROOT');
           assert(email === 'alessandro.drago@gmail.com');
           assert(roles.includes('admin'));
           assert(resetPassword === false);
-        });
-    });
-  });
-
-  describe('/v1/api/secured/create', () => {
-    it('should not create users', async () => {
-      await request(app.getHttpServer())
-        .post(`${V1_SECURITY_PATH}/create`)
-        .send({
-          username: 'ROOT2',
-          email: 'alessandro.io@gmail.com',
-          roles: ['admin'],
-        })
-        .expect(401);
-    });
-    it('should create users', async () => {
-      await request(app.getHttpServer())
-        .post(`${V1_SECURITY_PATH}/create`)
-        .set('Authorization', 'Bearer ' + token)
-        .send({
-          username: 'ROOT2',
-          email: 'alessandro.io@gmail.com',
-          roles: ['admin'],
-        })
-        .expect(201)
-        .then((resp) => {
-          assert(resp.body !== undefined);
-          const {
-            username,
-            roles = [],
-            email,
-            resetPassword,
-          } = resp.body as User;
-          assert(UsersService.decrypt(username) === 'ROOT2');
-          assert(UsersService.decrypt(email) === 'alessandro.io@gmail.com');
-          assert(resetPassword === true);
-          assert(
-            roles.map((role) => UsersService.decrypt(role)).includes('admin'),
-          );
+          assert(password === undefined);
         });
     });
   });

@@ -7,7 +7,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import {
   closeInMongodConnection,
   rootMongooseTestModule,
-} from '../../test/utils/globalSetup';
+} from '../../../test/utils/globalSetup';
 import { User, UserSchema } from './models/schema/users.schema';
 import { UsersService } from './users.service';
 
