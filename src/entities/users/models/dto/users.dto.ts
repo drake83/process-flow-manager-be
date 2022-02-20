@@ -10,7 +10,7 @@ import {
   MinLength,
 } from 'class-validator';
 import { passwordRegex } from '../../../../contants';
-import { Role } from '../../../../types';
+import Permission from '../../../../enums/permissions/permissions';
 
 export class UserDTO {
   @IsNotEmpty()
@@ -24,22 +24,26 @@ export class UserDTO {
 
   @IsArray()
   @IsNotEmpty()
-  roles: Role[];
+  permissions: Permission[];
 
   @IsNotEmpty()
   @IsBoolean()
   resetPassword?: boolean;
 
+  @Exclude()
   @IsNotEmpty()
   @IsString()
   @MinLength(6)
   @Matches(passwordRegex, {
     message: 'password too weak',
   })
-  @Exclude()
   password?: string;
 
   @IsNotEmpty()
   @IsDate()
   created: Date;
+
+  constructor(partial: Partial<UserDTO>) {
+    Object.assign(this, partial);
+  }
 }

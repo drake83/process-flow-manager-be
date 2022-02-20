@@ -10,6 +10,10 @@ import {
 import * as assert from 'assert';
 import { getAdmimToken as getAdminToken } from './utils/utils';
 import { UserDTO } from '../src/entities/users/models/dto/users.dto';
+import { UsersPermission } from '../src/enums/permissions/users.permissions';
+import { DataModelsPermission } from '../src/enums/permissions/data-models.permissions';
+import { ConnectionsPermission } from '../src/enums/permissions/connections.permissions';
+import { ProjectsPermission } from '../src/enums/permissions/projects.permissions';
 
 describe('Users (e2e)', () => {
   let app: INestApplication;
@@ -53,14 +57,24 @@ describe('Users (e2e)', () => {
           assert(resp.body !== undefined);
           const {
             username,
-            roles = [],
+            permissions = [],
             email,
             resetPassword,
             password,
           } = resp.body as UserDTO;
           assert(username === 'ROOT');
           assert(email === 'alessandro.drago@gmail.com');
-          assert(roles.includes('admin'));
+          permissions.forEach((permission) =>
+            assert(
+              [
+                UsersPermission.AdminUsers,
+                ProjectsPermission.AdminProjects,
+                DataModelsPermission.AdminDataModels,
+                ConnectionsPermission.AdminConnections,
+              ].includes(permission),
+            ),
+          );
+
           assert(resetPassword === false);
           assert(password === undefined);
         });

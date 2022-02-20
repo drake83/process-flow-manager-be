@@ -1,5 +1,9 @@
 import { UnauthorizedException } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
+import { UsersPermission } from '../enums/permissions/users.permissions';
+import { ProjectsPermission } from '../enums/permissions/projects.permissions';
+import { DataModelsPermission } from '../enums/permissions/data-models.permissions';
+import { ConnectionsPermission } from '../enums/permissions/connections.permissions';
 import {
   closeInMongodConnection,
   rootMongooseTestModule,
@@ -44,17 +48,31 @@ describe('AuthService', () => {
   });
 
   it('changePassword should be ok', async () => {
-    const { username, roles, resetPassword } = await service.changePassword({
+    const {
+      username,
+      permissions = [],
+      resetPassword,
+    } = await service.changePassword({
       username: 'ROOT',
       oldPassword: 'DUMMYPASSWORD',
       password: '1Aaaaaaapppppakaaa.',
     });
     expect(username).toBe('ROOT');
-    expect(roles).toStrictEqual(['admin']);
+    expect(permissions).toStrictEqual([
+      UsersPermission.AdminUsers,
+      ProjectsPermission.AdminProjects,
+      DataModelsPermission.AdminDataModels,
+      ConnectionsPermission.AdminConnections,
+    ]);
     expect(resetPassword).toBeFalsy();
     const valid = await service.validateUser('ROOT', '1Aaaaaaapppppakaaa.');
     expect(valid.username).toBe('ROOT');
-    expect(valid.roles).toStrictEqual(['admin']);
+    expect(valid.permissions).toStrictEqual([
+      UsersPermission.AdminUsers,
+      ProjectsPermission.AdminProjects,
+      DataModelsPermission.AdminDataModels,
+      ConnectionsPermission.AdminConnections,
+    ]);
     expect(valid.resetPassword).toBeFalsy();
   });
 });

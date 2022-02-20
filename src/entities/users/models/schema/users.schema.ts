@@ -1,6 +1,6 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document } from 'mongoose';
-import { Role } from '../../../../types';
+import Permission from '../../../../enums/permissions/permissions';
 
 @Schema()
 export class User {
@@ -14,7 +14,7 @@ export class User {
   email: string;
 
   @Prop({ required: true })
-  roles: Role[];
+  permissions: Permission[];
 
   @Prop({ required: true })
   resetPassword: boolean;

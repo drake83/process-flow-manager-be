@@ -11,7 +11,11 @@ import { User, UserDocument } from './models/schema/users.schema';
 import { Model } from 'mongoose';
 import { UserDTO } from './models/dto/users.dto';
 import { CreateUserDTO } from './models/dto/createuser.dto';
-import { Role } from 'src/types';
+import Permission from '../../enums/permissions/permissions';
+import { UsersPermission } from '../../enums/permissions/users.permissions';
+import { ProjectsPermission } from '../../enums/permissions/projects.permissions';
+import { DataModelsPermission } from '../../enums/permissions/data-models.permissions';
+import { ConnectionsPermission } from '../../enums/permissions/connections.permissions';
 
 @Injectable()
 export class UsersService implements OnModuleInit {
@@ -20,7 +24,12 @@ export class UsersService implements OnModuleInit {
     await this.save({
       email: 'alessandro.drago@gmail.com',
       username: 'ROOT',
-      roles: ['admin'],
+      permissions: [
+        UsersPermission.AdminUsers,
+        ProjectsPermission.AdminProjects,
+        DataModelsPermission.AdminDataModels,
+        ConnectionsPermission.AdminConnections,
+      ],
     });
   }
 
@@ -38,19 +47,21 @@ export class UsersService implements OnModuleInit {
     const {
       email,
       username: usernamedDb,
-      roles,
+      permissions,
       resetPassword,
       password,
       created,
     } = found;
-    return {
+    return new UserDTO({
       created,
       resetPassword,
       password,
-      roles: roles.map((role) => UsersService.decrypt(role) as Role),
+      permissions: permissions.map(
+        (permission) => UsersService.decrypt(permission) as Permission,
+      ),
       email: UsersService.decrypt(email),
       username: UsersService.decrypt(usernamedDb),
-    } as UserDTO;
+    });
   }
 
   async findAll() {
@@ -58,7 +69,7 @@ export class UsersService implements OnModuleInit {
   }
 
   async save(user: CreateUserDTO) {
-    const { email, username, roles } = user;
+    const { email, username, permissions = [] } = user;
     const found = await this.find(username);
     if (found) {
       throw new UnprocessableEntityException('User already present');
@@ -70,43 +81,45 @@ export class UsersService implements OnModuleInit {
       password: UsersService.hashing('DUMMYPASSWORD'),
       created: new Date(),
       resetPassword: true,
-      roles: roles.map((role) => UsersService.encrypt(role)),
+      permissions: permissions.map((permission) =>
+        UsersService.encrypt(permission),
+      ),
     }).save();
-    const createdDto: UserDTO = {
+    return new UserDTO({
       username: created.username,
       email: created.email,
       password: created.password,
       created: created.created,
       resetPassword: created.resetPassword,
-      roles: created.roles,
-    };
-    return createdDto;
+      permissions: created.permissions,
+    });
   }
 
   async update(user: UserDTO) {
-    const { username, password, email, resetPassword, roles } = user;
+    const { username, password, email, resetPassword, permissions = [] } = user;
     const filter = { username: UsersService.encrypt(username) };
     const update = {
       username: UsersService.encrypt(username),
       email: UsersService.encrypt(email),
       password: UsersService.hashing(password),
       resetPassword,
-      roles: roles.map((role) => UsersService.encrypt(role)),
+      permissions: permissions.map((permission) =>
+        UsersService.encrypt(permission),
+      ),
     };
     const updated = await this.userModel
       .findOneAndUpdate(filter, update, {
         new: true,
       })
       .exec();
-    const updatedDto: UserDTO = {
+    return new UserDTO({
       username: updated.username,
       email: updated.email,
       password: updated.password,
       created: updated.created,
       resetPassword: updated.resetPassword,
-      roles: updated.roles,
-    };
-    return updatedDto;
+      permissions: updated.permissions,
+    });
   }
 
   private static initVector = randomBytes(16);

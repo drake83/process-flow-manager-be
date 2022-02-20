@@ -4,6 +4,10 @@ import {
 } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { Test, TestingModule } from '@nestjs/testing';
+import { ConnectionsPermission } from '../../enums/permissions/connections.permissions';
+import { DataModelsPermission } from '../../enums/permissions/data-models.permissions';
+import { ProjectsPermission } from '../../enums/permissions/projects.permissions';
+import { UsersPermission } from '../../enums/permissions/users.permissions';
 import {
   closeInMongodConnection,
   rootMongooseTestModule,
@@ -48,31 +52,36 @@ describe('UsersService', () => {
 
   it('find should work', async () => {
     const fount = await service.findOne('ROOT');
-    const { username, resetPassword, roles, email } = fount;
+    const { username, resetPassword, permissions, email } = fount;
     expect(username).toBe('ROOT');
     expect(resetPassword).toBe(true);
-    expect(roles).toStrictEqual(['admin']);
+    expect(permissions).toStrictEqual([
+      UsersPermission.AdminUsers,
+      ProjectsPermission.AdminProjects,
+      DataModelsPermission.AdminDataModels,
+      ConnectionsPermission.AdminConnections,
+    ]);
     expect(email).toBe('alessandro.drago@gmail.com');
   });
   it('save  ', async () => {
     await service.save({
       username: 'ROOT2',
       email: 'email2@email.com',
-      roles: ['admin'],
+      permissions: [UsersPermission.CreateUsers],
     });
     const fount = await service.findOne('ROOT2');
-    const { username, resetPassword, roles, email } = fount;
+    const { username, resetPassword, permissions, email } = fount;
     expect(username).toBe('ROOT2');
     expect(email).toBe('email2@email.com');
     expect(resetPassword).toBe(true);
-    expect(roles).toStrictEqual(['admin']);
+    expect(permissions).toStrictEqual([UsersPermission.CreateUsers]);
   });
   it('save should fail ', async () => {
     try {
       await service.save({
         username: 'ROOT',
         email: 'email2@email.com',
-        roles: ['admin'],
+        permissions: [ConnectionsPermission.AdminConnections],
       });
     } catch (error) {
       expect(error).toBeInstanceOf(UnprocessableEntityException);

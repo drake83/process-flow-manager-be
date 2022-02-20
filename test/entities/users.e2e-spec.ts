@@ -12,6 +12,10 @@ import { getAdmimToken as getAdminToken } from '../../test/utils/utils';
 
 import { UserDTO } from '../../src/entities/users/models/dto/users.dto';
 import { UsersService } from '../../src/entities/users/users.service';
+import { UsersPermission } from '../../src/enums/permissions/users.permissions';
+import { ProjectsPermission } from '../../src/enums/permissions/projects.permissions';
+import { DataModelsPermission } from '../../src/enums/permissions/data-models.permissions';
+import { ConnectionsPermission } from '../../src/enums/permissions/connections.permissions';
 
 describe('Users (e2e)', () => {
   let app: INestApplication;
@@ -39,7 +43,12 @@ describe('Users (e2e)', () => {
         .send({
           username: 'ROOT2',
           email: 'alessandro.io@gmail.com',
-          roles: ['admin'],
+          permissions: [
+            UsersPermission.AdminUsers,
+            ProjectsPermission.AdminProjects,
+            DataModelsPermission.AdminDataModels,
+            ConnectionsPermission.AdminConnections,
+          ],
         })
         .expect(401);
     });
@@ -50,14 +59,14 @@ describe('Users (e2e)', () => {
         .send({
           username: 'ROOT2',
           email: 'alessandro.io@gmail.com',
-          roles: ['admin'],
+          permissions: [UsersPermission.AdminUsers],
         })
         .expect(201)
         .then((resp) => {
           assert(resp.body !== undefined);
           const {
             username,
-            roles = [],
+            permissions = [],
             email,
             resetPassword,
             password,
@@ -66,9 +75,12 @@ describe('Users (e2e)', () => {
           assert(UsersService.decrypt(email) === 'alessandro.io@gmail.com');
           assert(resetPassword === true);
           //assert(password === undefined);
-          assert(
-            roles.map((role) => UsersService.decrypt(role)).includes('admin'),
-          );
+
+          permissions.forEach((permission) => {
+            assert(
+              UsersService.decrypt(permission) === UsersPermission.AdminUsers,
+            );
+          });
         });
     });
   });

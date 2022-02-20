@@ -14,8 +14,8 @@ import { UsersService } from './users.service';
 export class UsersController {
   constructor(private usersService: UsersService) {}
 
-  @UseGuards(JwtAuthGuard)
   @Post(`/create`)
+  @UseGuards(JwtAuthGuard)
   create(@Body(new ValidationPipe()) user: CreateUserDTO) {
     return this.usersService.save(user);
   }

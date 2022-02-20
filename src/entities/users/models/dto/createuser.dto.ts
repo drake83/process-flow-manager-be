@@ -5,7 +5,7 @@ import {
   IsString,
   MinLength,
 } from 'class-validator';
-import { Role } from '../../../../types';
+import Permission from '../../../../enums/permissions/permissions';
 
 export class CreateUserDTO {
   @IsNotEmpty()
@@ -19,5 +19,5 @@ export class CreateUserDTO {
 
   @IsArray()
   @IsNotEmpty()
-  roles: Role[];
+  permissions: Permission[];
 }

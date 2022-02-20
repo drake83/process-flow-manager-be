@@ -9,6 +9,10 @@ import {
 import { AuthModule } from './auth.module';
 import { AuthService } from './auth.service';
 import { LocalStrategy } from './local.strategy';
+import { UsersPermission } from '../enums/permissions/users.permissions';
+import { ProjectsPermission } from '../enums/permissions/projects.permissions';
+import { DataModelsPermission } from '../enums/permissions/data-models.permissions';
+import { ConnectionsPermission } from '../enums/permissions/connections.permissions';
 
 describe('LocalStrategy', () => {
   let service: LocalStrategy;
@@ -64,12 +68,17 @@ describe('LocalStrategy', () => {
       oldPassword: 'DUMMYPASSWORD',
       password: '1Aaaaaaapppppakaaa.',
     });
-    const { username, roles, resetPassword } = await service.validate(
+    const { username, permissions, resetPassword } = await service.validate(
       'ROOT',
       '1Aaaaaaapppppakaaa.',
     );
     expect(username).toBe('ROOT');
-    expect(roles).toStrictEqual(['admin']);
+    expect(permissions).toStrictEqual([
+      UsersPermission.AdminUsers,
+      ProjectsPermission.AdminProjects,
+      DataModelsPermission.AdminDataModels,
+      ConnectionsPermission.AdminConnections,
+    ]);
     expect(resetPassword).toBeFalsy();
   });
 });

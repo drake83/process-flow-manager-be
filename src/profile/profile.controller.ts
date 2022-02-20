@@ -7,8 +7,8 @@ import { V1_SECURITY_PATH } from '../contants/index';
 export class ProfileController {
   constructor(private usersService: UsersService) {}
 
-  @UseGuards(JwtAuthGuard)
   @Get(`/detail`)
+  @UseGuards(JwtAuthGuard)
   getProfile(@Request() req) {
     return this.usersService.findOne(req.user.username);
   }
