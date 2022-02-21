@@ -39,9 +39,9 @@ export class AuthService {
   }
 
   async login(user: UserDTO) {
-    const { username, permissions: roles, email } = user;
+    const { username, permissions, email } = user;
     return {
-      access_token: this.jwtService.sign({ username, roles, email }),
+      access_token: this.jwtService.sign({ username, permissions, email }),
     };
   }
 }
