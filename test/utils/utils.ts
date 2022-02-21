@@ -2,11 +2,11 @@ import { INestApplication } from '@nestjs/common';
 import { V1_BASE_PATH } from '../../src/contants';
 import * as request from 'supertest';
 
-export const getAdmimToken = async (app: INestApplication) => {
+export const getToken = async (app: INestApplication, username = 'ROOT') => {
   await request(app.getHttpServer())
     .post(`${V1_BASE_PATH}/auth/reset-password`)
     .send({
-      username: 'ROOT',
+      username,
       oldPassword: 'DUMMYPASSWORD',
       password: '1Aaaaaaapppppakaaa.',
     })
@@ -14,7 +14,7 @@ export const getAdmimToken = async (app: INestApplication) => {
 
   const loginReq: any = await request(app.getHttpServer())
     .post(`${V1_BASE_PATH}/auth/login`)
-    .send({ username: 'ROOT', password: '1Aaaaaaapppppakaaa.' })
+    .send({ username, password: '1Aaaaaaapppppakaaa.' })
     .expect(201);
   return loginReq?.body?.access_token;
 };

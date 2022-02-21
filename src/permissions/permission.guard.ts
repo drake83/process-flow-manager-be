@@ -6,12 +6,12 @@ const PermissionGuard = (
 ): Type<CanActivate> => {
   class PermissionGuardMixin implements CanActivate {
     canActivate(context: ExecutionContext) {
-      const { user } = context.switchToHttp().getRequest();
-      console.log(`user`, user);
-      const { permissions = [] } = user;
+      const { user: { permissions = [] } = {} } = context
+        .switchToHttp()
+        .getRequest();
 
       return (
-        permissions.map((permission) =>
+        permissions.filter((permission) =>
           mandatoryPermissions.includes(permission),
         ).length > 0
       );

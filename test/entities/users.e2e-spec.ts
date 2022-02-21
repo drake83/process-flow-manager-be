@@ -8,7 +8,7 @@ import {
   rootMongooseTestModule,
 } from '../utils/globalSetup';
 import * as assert from 'assert';
-import { getAdmimToken as getAdminToken } from '../../test/utils/utils';
+import { getToken } from '../../test/utils/utils';
 
 import { UserDTO } from '../../src/entities/users/models/dto/users.dto';
 import { UsersService } from '../../src/entities/users/users.service';
@@ -28,7 +28,7 @@ describe('Users (e2e)', () => {
 
     app = moduleFixture.createNestApplication();
     await app.init();
-    token = await getAdminToken(app);
+    token = await getToken(app);
   });
 
   afterAll(async () => {
@@ -82,6 +82,46 @@ describe('Users (e2e)', () => {
             );
           });
         });
+    });
+    it('should get 403 no permissions', async () => {
+      await request(app.getHttpServer())
+        .post(`${V1_SECURITY_PATH}/users/create`)
+        .set('Authorization', 'Bearer ' + token)
+        .send({
+          username: 'ROOT3',
+          email: 'alessandro.io22@gmail.com',
+          permissions: [UsersPermission.ReadUsers],
+        })
+        .expect(201)
+        .then((resp) => {
+          assert(resp.body !== undefined);
+          const {
+            username,
+            permissions = [],
+            email,
+            resetPassword,
+          } = resp.body as UserDTO;
+          assert(UsersService.decrypt(username) === 'ROOT3');
+          assert(UsersService.decrypt(email) === 'alessandro.io22@gmail.com');
+          assert(resetPassword === true);
+          //assert(password === undefined);
+
+          permissions.forEach((permission) => {
+            assert(
+              UsersService.decrypt(permission) === UsersPermission.ReadUsers,
+            );
+          });
+        });
+      const root3Token = await getToken(app, 'ROOT3');
+      await request(app.getHttpServer())
+        .post(`${V1_SECURITY_PATH}/users/create`)
+        .set('Authorization', 'Bearer ' + root3Token)
+        .send({
+          username: 'ROOT4',
+          email: 'alessandro.io1444@gmail.com',
+          permissions: [UsersPermission.AdminUsers],
+        })
+        .expect(403);
     });
   });
 });

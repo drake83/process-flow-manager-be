@@ -8,7 +8,7 @@ import {
   rootMongooseTestModule,
 } from './utils/globalSetup';
 import * as assert from 'assert';
-import { getAdmimToken as getAdminToken } from './utils/utils';
+import { getToken as getAdminToken } from './utils/utils';
 import { UserDTO } from '../src/entities/users/models/dto/users.dto';
 import { UsersPermission } from '../src/enums/permissions/users.permissions';
 import { DataModelsPermission } from '../src/enums/permissions/data-models.permissions';
